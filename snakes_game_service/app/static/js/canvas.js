@@ -4,7 +4,7 @@ const canvas = document.getElementById("myCanvas");
 let x = canvas.width/5;
 let y = canvas.height-30;
 
-const head = new SnakeSquareHead(x, y, 30, "#FF0000")
+const head = new SnakeSquareHead(x, y, 30, "#FF0000", 1, "#000000")
 
 document.addEventListener("keyup", keyUpHandler, false);
 
