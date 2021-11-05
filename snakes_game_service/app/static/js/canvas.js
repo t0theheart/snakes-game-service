@@ -1,20 +1,27 @@
-var canvas = document.getElementById("myCanvas");
-var ctx = canvas.getContext("2d");
+import { SnakeSquareHead } from "./snake.js";
+const canvas = document.getElementById("myCanvas");
 
-ctx.beginPath();
-ctx.rect(20, 40, 50, 50);
-ctx.fillStyle = "#FF0000";
-ctx.fill();
-ctx.closePath();
+let x = canvas.width/5;
+let y = canvas.height-30;
 
-ctx.beginPath();
-ctx.arc(240, 160, 20, 0, Math.PI*2, false);
-ctx.fillStyle = "green";
-ctx.fill();
-ctx.closePath();
+const head = new SnakeSquareHead(x, y, 30, "#FF0000")
 
-ctx.beginPath();
-ctx.rect(160, 10, 100, 40);
-ctx.strokeStyle = "rgba(0, 0, 255, 0.5)";
-ctx.stroke();
-ctx.closePath();
+document.addEventListener("keyup", keyUpHandler, false);
+
+function keyUpHandler(e) {
+    console.log(e)
+    if (e.key === "ArrowUp") {
+        head.moveUp()
+    }
+    if (e.key === "ArrowDown") {
+        head.moveDown()
+    }
+    if (e.key === "ArrowRight") {
+        head.moveRight()
+    }
+    if (e.key === "ArrowLeft") {
+        head.moveLeft()
+    }
+}
+
+head.draw()
