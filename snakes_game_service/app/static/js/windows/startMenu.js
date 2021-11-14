@@ -1,4 +1,5 @@
 import { Game } from "../game.js";
+import { createLobbyContainer } from "./lobbyMenu.js";
 
 
 function removeSessionKeyContainer() {
@@ -15,8 +16,9 @@ async function onclickSessionInputButton() {
         removeSessionKeyContainer()
         let sessionData = await response.json()
         let gameData = sessionData.game
-        let game = new Game("snakes-game", gameData.width, gameData.height)
-        game.start()
+        createLobbyContainer()
+        // let game = new Game("snakes-game", gameData.width, gameData.height)
+        // game.start()
     }
 }
 

@@ -1,1 +1,6 @@
 canvas { background: #eee; display: block; margin: 0 auto; }
+
+table, th, td {
+  border: 2px solid black;
+  border-collapse: collapse;
+}
