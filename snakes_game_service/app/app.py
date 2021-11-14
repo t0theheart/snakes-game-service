@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse, Response
+from fastapi.responses import HTMLResponse, Response, JSONResponse
 from fastapi.staticfiles import StaticFiles
 import uvicorn
 
@@ -14,10 +14,25 @@ app = FastAPI()
 async def startup_event():
     app.templates = Jinja2Templates(directory="static/templates")
     app.mount("/static", StaticFiles(directory="static"), name="static")
-    app.mount("/scripts", StaticFiles(directory="static/js"), name="js")
+    app.mount("/scripts", StaticFiles(directory="static/js"), name="scripts")
     app.sessions = Sessions()
 
-    app.sessions.sessions['123'] = {'123': 123}
+    app.sessions.sessions['123'] = {
+        'sessionKey': '123',
+        'sessionPlayersNumber': 1,
+        'game': {
+            'width': 1500,
+            'height': 900,
+            'players': [
+                {
+                    'color': '#FF0000',
+                    'number': 1,
+                    # 'x': 1500 // 5,
+                    # 'y': 900 - 90,
+                }
+            ]
+        }
+    }
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -34,7 +49,7 @@ async def root(request: Request):
 async def root(key: str, request: Request):
     session = request.app.sessions.get_session(key)
     if session:
-        return Response(status_code=200)
+        return JSONResponse(status_code=200, content=session)
     return Response(status_code=404)
 
 

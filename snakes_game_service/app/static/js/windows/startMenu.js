@@ -1,8 +1,8 @@
-import { createGame } from "./game.js";
+import { Game } from "../game.js";
 
 
 function removeSessionKeyContainer() {
-    document.getElementById("session-key-input-container").remove();
+    document.getElementById("session-key-input-container").remove()
 }
 
 
@@ -13,7 +13,10 @@ async function onclickSessionInputButton() {
 
     if (response.ok) {
         removeSessionKeyContainer()
-        createGame()
+        let sessionData = await response.json()
+        let gameData = sessionData.game
+        let game = new Game("snakes-game", gameData.width, gameData.height)
+        game.start()
     }
 }
 
