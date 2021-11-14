@@ -17,6 +17,8 @@ async def startup_event():
     app.mount("/scripts", StaticFiles(directory="static/js"), name="js")
     app.sessions = Sessions()
 
+    app.sessions.sessions['123'] = {'123': 123}
+
 
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
