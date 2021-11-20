@@ -9,17 +9,46 @@ function removeSessionKeyContainer() {
 
 async function onclickSessionInputButton() {
     let input = document.getElementById("session-key-input")
-    let value = input.value
-    let response = await fetch('/sessions?key=' + value);
+    let session = input.value
 
-    if (response.ok) {
-        removeSessionKeyContainer()
-        let sessionData = await response.json()
-        let gameData = sessionData.game
-        createLobbyContainer()
-        // let game = new Game("snakes-game", gameData.width, gameData.height)
-        // game.start()
+    async function enterToSession(session) {
+        let response = await fetch('/sessions/' + session + '/users', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json;charset=utf-8'},
+            body: {}
+        });
+
+        if (response.ok) {
+            return true
+        }
+
     }
+
+    async function getSessionUsers(session) {
+        let response = await fetch('/sessions/' + session + '/users');
+
+        if (response.ok) {
+            return (await response.json()).users
+        }
+    }
+
+    let isEntered = enterToSession(session)
+
+    if (isEntered) {
+        let users = await getSessionUsers(session)
+        removeSessionKeyContainer()
+        createLobbyContainer(users)
+    }
+
+
+    // if (response.ok) {
+    //     removeSessionKeyContainer()
+    //     let sessionData = await response.json()
+    //     let gameData = sessionData.game
+    //     createLobbyContainer()
+    //     // let game = new Game("snakes-game", gameData.width, gameData.height)
+    //     // game.start()
+    // }
 }
 
 
