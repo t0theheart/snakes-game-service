@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class SessionsABC(ABC):
+class SessionsManagerABC(ABC):
 
     @abstractmethod
     def create_session(self) -> str: pass

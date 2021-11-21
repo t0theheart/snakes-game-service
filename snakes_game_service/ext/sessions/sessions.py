@@ -1,8 +1,8 @@
-from snakes_game_service.ext.sessions_abc import SessionsABC
+from snakes_game_service.ext.sessions.sessions_abc import SessionsManagerABC
 import uuid
 
 
-class Sessions(SessionsABC):
+class SessionsManager(SessionsManagerABC):
     def __init__(self):
         self.sessions = {}
 

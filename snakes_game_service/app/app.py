@@ -1,10 +1,11 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse, Response, JSONResponse
+from fastapi.responses import HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 import uvicorn
 
-from snakes_game_service.ext.sessions import Sessions
+from snakes_game_service.ext.sessions.sessions import SessionsManager
+from snakes_game_service.ext.connections.connections import ConnectionsManager
 
 
 app = FastAPI()
@@ -15,7 +16,8 @@ async def startup_event():
     app.templates = Jinja2Templates(directory="static/templates")
     app.mount("/static", StaticFiles(directory="static"), name="static")
     app.mount("/scripts", StaticFiles(directory="static/js"), name="scripts")
-    app.sessions = Sessions()
+    app.sessions = SessionsManager()
+    app.connections = ConnectionsManager()
 
     app.sessions.sessions['123'] = {
         'session_key': '123',
@@ -56,6 +58,18 @@ async def get_session_users(session_key: str, request: Request):
 @app.get("/sessions/{session_key}/users")
 async def get_session_users(session_key: str, request: Request):
     return {"users": request.app.sessions.get_session_users(session_key)}
+
+
+@app.websocket("/ws/{user_id}")
+async def websocket_endpoint(websocket: WebSocket, user_id: str):
+    print('user_id:', user_id)
+    await websocket.app.connections.create_connection(websocket, user_id)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            print('data', data)
+    except WebSocketDisconnect:
+        pass
 
 
 if __name__ == "__main__":

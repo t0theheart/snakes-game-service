@@ -1,15 +1,19 @@
 import { Game } from "../game.js";
 import { createLobbyContainer } from "./lobbyMenu.js";
+import { Connection } from "../connection.js";
+
+
+let connection = new Connection()
 
 
 function removeSessionKeyContainer() {
-    document.getElementById("session-key-input-container").remove()
+    document.getElementById("sessions-key-input-container").remove()
 }
 
 
 async function onclickSessionInputButton() {
-    let input = document.getElementById("session-key-input")
-    let session = input.value
+    let input = document.getElementById("sessions-key-input")
+    let sessionId = input.value
 
     async function enterToSession(session) {
         let response = await fetch('/sessions/' + session + '/users', {
@@ -24,20 +28,12 @@ async function onclickSessionInputButton() {
 
     }
 
-    async function getSessionUsers(session) {
-        let response = await fetch('/sessions/' + session + '/users');
-
-        if (response.ok) {
-            return (await response.json()).users
-        }
-    }
-
-    let isEntered = enterToSession(session)
+    let isEntered = enterToSession(sessionId)
 
     if (isEntered) {
-        let users = await getSessionUsers(session)
+        connection.init(sessionId)
         removeSessionKeyContainer()
-        createLobbyContainer(users)
+        // createLobbyContainer(users)
     }
 
 
@@ -54,15 +50,15 @@ async function onclickSessionInputButton() {
 
 function createSessionKeyContainer() {
     let div = document.createElement("div")
-    div.id = "session-key-input-container"
+    div.id = "sessions-key-input-container"
 
     let input = document.createElement("input")
     input.type = "text"
     input.size = 40
-    input.id = "session-key-input"
+    input.id = "sessions-key-input"
 
     let text = document.createElement("div")
-    text.innerText = "Input session key:"
+    text.innerText = "Input sessions key:"
 
     let button = document.createElement("button")
     button.innerText = "Enter"
