@@ -18,15 +18,13 @@ class SessionsManager(SessionsManagerABC):
         session = self.get_session(session_key)
         return session['users']
 
-    def create_session_user(self, session_key: str) -> bool:
-        session = self.get_session(session_key)
+    def put_user_to_session(self, user: dict, sessions_id: str) -> bool:
+        session = self.get_session(sessions_id)
         users = session['users']
         users_number = session['users_number']
         if users_number > len(users):
-            user = {
-                'color': '#FF0000'
-            }
-            self.sessions[session_key]['users'].append(user)
+            user['color'] = '#FF0000'
+            self.sessions[sessions_id]['users'].append(user)
             return True
         return False
 

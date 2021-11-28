@@ -16,8 +16,13 @@ export class Connection {
 
     init(sessionId) {
         this.socket = new WebSocket(this.address + this.generate_id());
+
         this.socket.onopen = function(event) {
-            event.target.send(sessionId)
+            event.target.send(JSON.stringify({sessionId: sessionId}));
+        };
+
+        this.socket.onclose = function(event) {
+            console.log(event)
         };
     }
 }

@@ -13,4 +13,4 @@ class SessionsManagerABC(ABC):
     def get_session_users(self, session_key: str) -> list: pass
 
     @abstractmethod
-    def create_session_user(self, session_key: str) -> bool: pass
+    def put_user_to_session(self, user: dict, session_key: str) -> bool: pass

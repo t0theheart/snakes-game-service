@@ -15,26 +15,10 @@ async function onclickSessionInputButton() {
     let input = document.getElementById("sessions-key-input")
     let sessionId = input.value
 
-    async function enterToSession(session) {
-        let response = await fetch('/sessions/' + session + '/users', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json;charset=utf-8'},
-            body: {}
-        });
+    connection.init(sessionId)
+    removeSessionKeyContainer()
+    // createLobbyContainer(users)
 
-        if (response.ok) {
-            return true
-        }
-
-    }
-
-    let isEntered = enterToSession(sessionId)
-
-    if (isEntered) {
-        connection.init(sessionId)
-        removeSessionKeyContainer()
-        // createLobbyContainer(users)
-    }
 
 
     // if (response.ok) {

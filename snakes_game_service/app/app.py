@@ -47,14 +47,6 @@ async def create_session(request: Request):
     return {"session": request.app.sessions.create_session()}
 
 
-@app.post("/sessions/{session_key}/users")
-async def get_session_users(session_key: str, request: Request):
-    is_created = request.app.sessions.create_session_user(session_key)
-    if is_created:
-        return Response(status_code=201)
-    return Response(status_code=403)
-
-
 @app.get("/sessions/{session_key}/users")
 async def get_session_users(session_key: str, request: Request):
     return {"users": request.app.sessions.get_session_users(session_key)}
@@ -62,24 +54,17 @@ async def get_session_users(session_key: str, request: Request):
 
 @app.websocket("/ws/{user_id}")
 async def websocket_endpoint(websocket: WebSocket, user_id: str):
-    print('user_id:', user_id)
     await websocket.app.connections.create_connection(websocket, user_id)
     try:
         while True:
-            data = await websocket.receive_text()
-            print('data', data)
+            data = await websocket.receive_json()
+            sessions_id = data['sessionId']
+            user = {'user_id': user_id}
+            if not websocket.app.sessions.put_user_to_session(user=user, sessions_id=sessions_id):
+                raise WebSocketDisconnect
     except WebSocketDisconnect:
-        pass
+        await websocket.close(code=3051)
 
 
 if __name__ == "__main__":
     uvicorn.run("app:app", host="127.0.0.1", port=5000, log_level="info")
-
-
-# @app.post("/sessions/{session_key}/users")
-
-# @app.get("/sessions/{session_key}/users")
-
-# @app.get("/sessions/{session_key}")
-
-# @app.post("/sessions")
