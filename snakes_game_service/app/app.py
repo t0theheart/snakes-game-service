@@ -3,12 +3,17 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 import uvicorn
+import enum
 
 from snakes_game_service.ext.sessions.sessions import SessionsManager
 from snakes_game_service.ext.connections.connections import ConnectionsManager
 
 
 app = FastAPI()
+
+
+class GameCode(enum.Enum):
+    LOBBY = 'LOBBY'
 
 
 @app.on_event("startup")
@@ -58,10 +63,13 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
     try:
         while True:
             data = await websocket.receive_json()
-            sessions_id = data['sessionId']
-            user = {'user_id': user_id}
-            if not websocket.app.sessions.put_user_to_session(user=user, sessions_id=sessions_id):
+            session_id = data['sessionId']
+            user = {'user_id': user_id, 'color': '#FF0000'}
+            if not websocket.app.sessions.put_user_to_session(user=user, session_id=session_id):
                 raise WebSocketDisconnect
+            else:
+                session = websocket.app.sessions.get_session(session_id=session_id)
+                await websocket.send_json(data={'data': session, 'code': GameCode.LOBBY.value})
     except WebSocketDisconnect:
         await websocket.close(code=3051)
 
