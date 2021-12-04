@@ -1,9 +1,15 @@
-import { Game } from "../game.js";
-import { createLobbyContainer } from "./lobbyMenu.js";
+// import { Game } from "../game.js";
+// import { createLobbyContainer } from "./lobbyMenu.js";
 import { Connection } from "../connection.js";
+import { eventBus } from "../eventBus.js";
 
 
-let connection = new Connection()
+let connection = new Connection(eventBus)
+
+eventBus.listen('LOBBY', function (event) {
+    console.log('FROM CONSUMER!!!!!!!')
+    console.log(event)
+})
 
 
 function removeSessionKeyContainer() {
@@ -15,20 +21,8 @@ async function onclickSessionInputButton() {
     let input = document.getElementById("sessions-key-input")
     let sessionId = input.value
 
-    connection.init(sessionId)
+    connection.send({sessionId: sessionId})
     removeSessionKeyContainer()
-    // createLobbyContainer(users)
-
-
-
-    // if (response.ok) {
-    //     removeSessionKeyContainer()
-    //     let sessionData = await response.json()
-    //     let gameData = sessionData.game
-    //     createLobbyContainer()
-    //     // let game = new Game("snakes-game", gameData.width, gameData.height)
-    //     // game.start()
-    // }
 }
 
 

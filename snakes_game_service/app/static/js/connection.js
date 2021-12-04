@@ -1,28 +1,29 @@
 
 
 export class Connection {
-    constructor() {
-        this.socket = null
-        this.address = 'ws://127.0.0.1:5000/ws/'
-    }
+    constructor(eventBus) {
+        this.eventBus = eventBus;
+        this.address = 'ws://127.0.0.1:5000/ws/';
+        this.socket = new WebSocket(this.address + this.generate_id());
+        this.socket.onmessage = this.onmessage();
+    };
 
     generate_id() {
-        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
-    }
+        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    };
 
     send(data) {
-        this.socket.send(data)
-    }
+        this.socket.send(JSON.stringify(data));
+    };
 
-    init(sessionId) {
-        this.socket = new WebSocket(this.address + this.generate_id());
-
-        this.socket.onopen = function(event) {
-            event.target.send(JSON.stringify({sessionId: sessionId}));
-        };
-
-        this.socket.onclose = function(event) {
-            console.log(event)
-        };
+    onmessage() {
+        let eventBus = this.eventBus;
+        function wrapper(event) {
+            let message = JSON.parse(event.data);
+            if (message.code === 'LOBBY') {
+                eventBus.write('LOBBY', message)
+            }
+        }
+        return wrapper
     }
 }
