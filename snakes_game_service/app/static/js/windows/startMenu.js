@@ -1,15 +1,11 @@
 // import { Game } from "../game.js";
-// import { createLobbyContainer } from "./lobbyMenu.js";
+import { LobbyTable } from "./lobbyTable.js";
 import { Connection } from "../connection.js";
 import { eventBus } from "../eventBus.js";
 
 
 let connection = new Connection(eventBus)
-
-eventBus.listen('LOBBY', function (event) {
-    console.log('FROM CONSUMER!!!!!!!')
-    console.log(event)
-})
+let lobbyTable = new LobbyTable(eventBus)
 
 
 function removeSessionKeyContainer() {

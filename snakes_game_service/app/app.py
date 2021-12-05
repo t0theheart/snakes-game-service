@@ -13,7 +13,12 @@ app = FastAPI()
 
 
 class GameCode(enum.Enum):
-    LOBBY = 'LOBBY'
+    ENTER_LOBBY = 'ENTER_LOBBY'
+
+
+class PlayerStatus(enum.Enum):
+    HOST = 'HOST'
+    PLAYER = 'PLAYER'
 
 
 @app.on_event("startup")
@@ -25,8 +30,8 @@ async def startup_event():
     app.connections = ConnectionsManager()
 
     app.sessions.sessions['123'] = {
-        'session_key': '123',
-        'users_number': 2,
+        'sessionId': '123',
+        'usersAmount': 2,
         'game': {
             'width': 1500,
             'height': 900,
@@ -64,12 +69,12 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
         while True:
             data = await websocket.receive_json()
             session_id = data['sessionId']
-            user = {'user_id': user_id, 'color': '#FF0000'}
+            user = {'user_id': user_id, 'color': '#FF0000', 'status': PlayerStatus.HOST.value}
             if not websocket.app.sessions.put_user_to_session(user=user, session_id=session_id):
                 raise WebSocketDisconnect
             else:
                 session = websocket.app.sessions.get_session(session_id=session_id)
-                await websocket.send_json(data={'data': session, 'code': GameCode.LOBBY.value})
+                await websocket.send_json(data={'data': session, 'code': GameCode.ENTER_LOBBY.value})
     except WebSocketDisconnect:
         await websocket.close(code=3051)
 

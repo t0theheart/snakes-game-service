@@ -17,7 +17,7 @@ class SessionsManager(SessionsManagerABC):
     def put_user_to_session(self, user: dict, session_id: str) -> bool:
         session = self.get_session(session_id)
         users = session['users']
-        users_number = session['users_number']
+        users_number = session['usersAmount']
         if users_number > len(users):
             self.sessions[session_id]['users'].append(user)
             return True
