@@ -14,6 +14,7 @@ app = FastAPI()
 
 class GameCode(enum.Enum):
     ENTER_LOBBY = 'ENTER_LOBBY'
+    NEW_PLAYER_ENTER_LOBBY = 'NEW_PLAYER_ENTER_LOBBY'
 
 
 class PlayerStatus(enum.Enum):
@@ -31,7 +32,7 @@ async def startup_event():
 
     app.sessions.sessions['123'] = {
         'sessionId': '123',
-        'usersAmount': 2,
+        'usersAmount': 3,
         'game': {
             'width': 1500,
             'height': 900,
@@ -64,17 +65,25 @@ async def get_session_users(session_key: str, request: Request):
 
 @app.websocket("/ws/{user_id}")
 async def websocket_endpoint(websocket: WebSocket, user_id: str):
-    await websocket.app.connections.create_connection(websocket, user_id)
+    await websocket.accept()
     try:
         while True:
             data = await websocket.receive_json()
-            session_id = data['sessionId']
-            user = {'user_id': user_id, 'color': '#FF0000', 'status': PlayerStatus.HOST.value}
-            if not websocket.app.sessions.put_user_to_session(user=user, session_id=session_id):
-                raise WebSocketDisconnect
+            if data['code'] == 'CONNECT_TO_SESSION':
+                session_id = data['sessionId']
+                user = {'userId': user_id, 'color': '#FF0000', 'status': PlayerStatus.HOST.value}
+                session = websocket.app.sessions.get_session(session_id)
+                if len(session['users']) < session['usersAmount']:
+                    other_users_ids = [user['userId'] for user in session['users']]
+                    websocket.app.sessions.put_user_to_session(user, session_id)
+                    websocket.app.connections.add(websocket, user_id)
+                    await websocket.send_json({'data': session, 'code': GameCode.ENTER_LOBBY.value})
+                    await websocket.app.connections.send(
+                        message={'data': user, 'code': GameCode.NEW_PLAYER_ENTER_LOBBY.value},
+                        connections_ids=other_users_ids
+                    )
             else:
-                session = websocket.app.sessions.get_session(session_id=session_id)
-                await websocket.send_json(data={'data': session, 'code': GameCode.ENTER_LOBBY.value})
+                raise WebSocketDisconnect
     except WebSocketDisconnect:
         await websocket.close(code=3051)
 

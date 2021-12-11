@@ -17,7 +17,7 @@ async function onclickSessionInputButton() {
     let input = document.getElementById("sessions-key-input")
     let sessionId = input.value
 
-    connection.send({sessionId: sessionId})
+    connection.send({sessionId: sessionId, code: 'CONNECT_TO_SESSION'})
     removeSessionKeyContainer()
 }
 

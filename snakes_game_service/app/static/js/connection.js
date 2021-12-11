@@ -20,9 +20,7 @@ export class Connection {
         let eventBus = this.eventBus;
         function wrapper(event) {
             let message = JSON.parse(event.data);
-            if (message.code === 'ENTER_LOBBY') {
-                eventBus.write('ENTER_LOBBY', message)
-            }
+            eventBus.write(message.code, message);
         }
         return wrapper
     }
