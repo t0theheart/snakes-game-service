@@ -77,7 +77,7 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
                     other_users_ids = [user['userId'] for user in session['users']]
                     websocket.app.sessions.put_user_to_session(user, session_id)
                     websocket.app.connections.add(websocket, user_id)
-                    await websocket.send_json({'data': session, 'code': GameCode.ENTER_LOBBY.value})
+                    await websocket.send_json({'session': session, 'code': GameCode.ENTER_LOBBY.value, 'user': user})
                     await websocket.app.connections.send(
                         message={'data': user, 'code': GameCode.NEW_PLAYER_ENTER_LOBBY.value},
                         connections_ids=other_users_ids
