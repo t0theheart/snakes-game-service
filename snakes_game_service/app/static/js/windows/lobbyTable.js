@@ -76,7 +76,7 @@ export class LobbyTable {
     insertUser(user) {
         let userArray = [
             this.insertRowIndex,
-            user.userId,
+            user.id,
             user.status,
             user.color
         ]

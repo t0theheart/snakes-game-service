@@ -5,11 +5,28 @@ from fastapi.staticfiles import StaticFiles
 import uvicorn
 import enum
 
-from snakes_game_service.ext.sessions.sessions import SessionsManager
-from snakes_game_service.ext.connections.connections import ConnectionsManager
+from snakes_game_service.ext.game import GameManager
 
 
 app = FastAPI()
+game = GameManager()
+
+game.sessions.sessions['123'] = {
+        'sessionId': '123',
+        'usersAmount': 3,
+        'game': {
+            'width': 1500,
+            'height': 900,
+        },
+        'users': [
+            # {
+            #     'color': '#FF0000',
+            #     'number': 1,
+            #     # 'x': 1500 // 5,
+            #     # 'y': 900 - 90,
+            # }
+        ]
+    }
 
 
 class GameCode(enum.Enum):
@@ -27,25 +44,6 @@ async def startup_event():
     app.templates = Jinja2Templates(directory="static/templates")
     app.mount("/static", StaticFiles(directory="static"), name="static")
     app.mount("/scripts", StaticFiles(directory="static/js"), name="scripts")
-    app.sessions = SessionsManager()
-    app.connections = ConnectionsManager()
-
-    app.sessions.sessions['123'] = {
-        'sessionId': '123',
-        'usersAmount': 3,
-        'game': {
-            'width': 1500,
-            'height': 900,
-        },
-        'users': [
-            # {
-            #     'color': '#FF0000',
-            #     'number': 1,
-            #     # 'x': 1500 // 5,
-            #     # 'y': 900 - 90,
-            # }
-        ]
-    }
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -71,17 +69,7 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
             data = await websocket.receive_json()
             if data['code'] == 'CONNECT_TO_SESSION':
                 session_id = data['sessionId']
-                user = {'userId': user_id, 'color': '#FF0000', 'status': PlayerStatus.HOST.value}
-                session = websocket.app.sessions.get_session(session_id)
-                if len(session['users']) < session['usersAmount']:
-                    other_users_ids = [user['userId'] for user in session['users']]
-                    websocket.app.sessions.put_user_to_session(user, session_id)
-                    websocket.app.connections.add(websocket, user_id)
-                    await websocket.send_json({'session': session, 'code': GameCode.ENTER_LOBBY.value, 'user': user})
-                    await websocket.app.connections.send(
-                        message={'data': user, 'code': GameCode.NEW_PLAYER_ENTER_LOBBY.value},
-                        connections_ids=other_users_ids
-                    )
+                await game.connect_new_player_to_lobby(websocket, player_id=user_id, lobby_id=session_id)
             else:
                 raise WebSocketDisconnect
     except WebSocketDisconnect:
