@@ -1,1 +1,1 @@
-from .connections import ConnectionsManager
+from .connections import Connections

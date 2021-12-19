@@ -1,7 +1,8 @@
 from fastapi import WebSocket
 import enum
-from .connections import ConnectionsManager
+from .connections import Connections
 from .sessions import SessionsManager
+from .message import Message
 
 
 class GameCode(enum.Enum):
@@ -16,21 +17,24 @@ class PlayerStatus(enum.Enum):
 
 class GameManager:
     def __init__(self):
-        self.connections = ConnectionsManager()
+        self.connections = Connections()
         self.sessions = SessionsManager()
 
-    async def connect_new_player_to_lobby(self, websocket: WebSocket, player_id: str, lobby_id: str):
-        session = self.sessions.get_session(lobby_id)
-        if len(session['users']) < session['usersAmount']:
-            other_users_ids = [user['id'] for user in session['users']]
+    def __allow_to_connect(self, session_id: str) -> bool:
+        session = self.sessions.get_session(session_id)
+        return len(session['users']) < session['usersAmount']
 
+    async def connect_player(self, websocket: WebSocket, player_id: str, session_id: str):
+        if self.__allow_to_connect(session_id):
+            session = self.sessions.get_session(session_id)
             user = {'id': player_id, 'color': '#FF0000', 'status': PlayerStatus.HOST.value}
-
-            self.sessions.put_user_to_session(user, lobby_id)
-            self.connections.add(websocket, player_id)
-            await websocket.send_json({'session': session, 'code': GameCode.ENTER_LOBBY.value, 'user': user})
-            await self.connections.send(
-                message={'data': user, 'code': GameCode.NEW_PLAYER_ENTER_LOBBY.value},
-                connections_ids=other_users_ids
+            await self.connections.send_all(
+                Message(data={'user': user}, code=GameCode.NEW_PLAYER_ENTER_LOBBY.value).dict()
             )
+            self.sessions.put_user(user, session_id)
+            self.connections.add(websocket, player_id, session_id)
+            await websocket.send_json(
+                Message(data={'session': session, 'user': user}, code=GameCode.ENTER_LOBBY.value).dict()
+            )
+
 

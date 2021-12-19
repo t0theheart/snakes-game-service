@@ -1,14 +1,28 @@
 from fastapi import WebSocket
 
 
-class ConnectionsManager:
+class Connection:
+    def __init__(self, websocket: WebSocket, client_id: str, session_id: str):
+        self.client_id = client_id
+        self.session_id = session_id
+        self.websocket = websocket
+
+
+class Connections:
     def __init__(self):
-        self.connections = {}
+        self.__connections = {}
 
-    def add(self, websocket: WebSocket, connection_id: str):
-        self.connections[connection_id] = websocket
+    def add(self, websocket: WebSocket, client_id: str, session_id: str):
+        con = Connection(websocket, client_id, session_id)
+        self.__connections[client_id] = con
 
-    async def send(self, message: dict, connections_ids: list):
-        for connections_id in connections_ids:
-            websocket = self.connections[connections_id]
-            await websocket.send_json(message)
+    def get(self, client_id: str):
+        return self.__connections[client_id]
+
+    async def __send(self, message: dict, client_id: list):
+        websocket = self.__connections[client_id].websocket
+        await websocket.send_json(message)
+
+    async def send_all(self, message: dict):
+        for con in self.__connections.values():
+            await self.__send(message, client_id=con.client_id)

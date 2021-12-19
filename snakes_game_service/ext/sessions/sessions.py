@@ -14,14 +14,9 @@ class SessionsManager(SessionsManagerABC):
     def get_session(self, session_id: str) -> dict:
         return self.sessions.get(session_id)
 
-    def put_user_to_session(self, user: dict, session_id: str) -> bool:
-        session = self.get_session(session_id)
-        users = session['users']
-        users_number = session['usersAmount']
-        if users_number > len(users):
-            self.sessions[session_id]['users'].append(user)
-            return True
-        return False
+    def put_user(self, user: dict, session_id: str):
+        self.sessions[session_id]['users'][user['id']] = user
+
 
 
 

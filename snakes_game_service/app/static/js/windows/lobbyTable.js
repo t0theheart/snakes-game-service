@@ -20,7 +20,7 @@ export class LobbyTable {
     newPlayerEnterLobbyHandler() {
         let _this = this;
         function handler(event) {
-            let user = event.message.data;
+            let user = event.message.data.user;
             _this.insertUser(user)
         }
         return handler;
@@ -29,13 +29,13 @@ export class LobbyTable {
     enterLobbyHandler() {
         let _this = this;
         function handler(event) {
-            let session = event.message.session;
-            let user = event.message.user;
-            let usersAmount = session.usersAmount;
+            let users = event.message.data.session.users;
+            let user = event.message.data.user;
+            let usersAmount = event.message.data.session.usersAmount;
             _this.createTable(usersAmount);
-            session.users.forEach(user => {
-                _this.insertUser(user);
-            })
+            for (let key in users) {
+                 _this.insertUser(users[key]);
+            }
             if (user.status === 'HOST') {
                 _this.createStartButton();
             }

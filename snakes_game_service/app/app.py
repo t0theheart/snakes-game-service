@@ -1,9 +1,8 @@
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse, Response
+from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 import uvicorn
-import enum
 
 from snakes_game_service.ext.game import GameManager
 
@@ -18,25 +17,8 @@ game.sessions.sessions['123'] = {
             'width': 1500,
             'height': 900,
         },
-        'users': [
-            # {
-            #     'color': '#FF0000',
-            #     'number': 1,
-            #     # 'x': 1500 // 5,
-            #     # 'y': 900 - 90,
-            # }
-        ]
+        'users': {}
     }
-
-
-class GameCode(enum.Enum):
-    ENTER_LOBBY = 'ENTER_LOBBY'
-    NEW_PLAYER_ENTER_LOBBY = 'NEW_PLAYER_ENTER_LOBBY'
-
-
-class PlayerStatus(enum.Enum):
-    HOST = 'HOST'
-    PLAYER = 'PLAYER'
 
 
 @app.on_event("startup")
@@ -69,7 +51,7 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
             data = await websocket.receive_json()
             if data['code'] == 'CONNECT_TO_SESSION':
                 session_id = data['sessionId']
-                await game.connect_new_player_to_lobby(websocket, player_id=user_id, lobby_id=session_id)
+                await game.connect_player(websocket, player_id=user_id, session_id=session_id)
             else:
                 raise WebSocketDisconnect
     except WebSocketDisconnect:

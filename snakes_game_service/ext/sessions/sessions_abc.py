@@ -10,4 +10,4 @@ class SessionsManagerABC(ABC):
     def get_session(self, session_id: str) -> str: pass
 
     @abstractmethod
-    def put_user_to_session(self, user: dict, sessions_id: str) -> bool: pass
+    def put_user(self, user: dict, sessions_id: str) -> bool: pass
