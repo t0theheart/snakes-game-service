@@ -16,8 +16,11 @@ class Connections:
         con = Connection(websocket, client_id, session_id)
         self.__connections[client_id] = con
 
-    def get(self, client_id: str):
+    def get(self, client_id: str) -> Connection:
         return self.__connections[client_id]
+
+    def pop(self, client_id: str) -> Connection:
+        return self.__connections.pop(client_id)
 
     async def __send(self, message: dict, client_id: list):
         websocket = self.__connections[client_id].websocket

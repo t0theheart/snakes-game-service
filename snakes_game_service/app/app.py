@@ -10,16 +10,6 @@ from snakes_game_service.ext.game import GameManager
 app = FastAPI()
 game = GameManager()
 
-game.sessions.sessions['123'] = {
-        'sessionId': '123',
-        'usersAmount': 3,
-        'game': {
-            'width': 1500,
-            'height': 900,
-        },
-        'users': {}
-    }
-
 
 @app.on_event("startup")
 async def startup_event():
@@ -53,8 +43,14 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
                 session_id = data['sessionId']
                 await game.connect_player(websocket, player_id=user_id, session_id=session_id)
             else:
-                raise WebSocketDisconnect
+                pass
+
     except WebSocketDisconnect:
+        if game.connections.get(user_id):
+            await game.disconnect_player(player_id=user_id)
+            print('УБРАЛИ ИЗ ЛОББИ', user_id)
+        else:
+            print('НЕТ В ЛОББИ', user_id)
         await websocket.close(code=3051)
 
 

@@ -9,7 +9,8 @@ export class LobbyTable {
         this.insertRowIndex = 0;
         this.eventBus = eventBus;
         this.eventBus.listen('ENTER_LOBBY', this.enterLobbyHandler());
-        this.eventBus.listen('NEW_PLAYER_ENTER_LOBBY', this.newPlayerEnterLobbyHandler());
+        this.eventBus.listen('PLAYER_ENTER_LOBBY', this.playerEnterLobbyHandler());
+        this.eventBus.listen('PLAYER_LEAVE_LOBBY', this.playerLeaveLobbyHandler());
     };
 
     destroy() {
@@ -17,11 +18,20 @@ export class LobbyTable {
         elem.parentNode.removeChild(elem);
     }
 
-    newPlayerEnterLobbyHandler() {
+    playerEnterLobbyHandler() {
         let _this = this;
         function handler(event) {
             let user = event.message.data.user;
             _this.insertUser(user)
+        }
+        return handler;
+    }
+
+    playerLeaveLobbyHandler() {
+        let _this = this;
+        function handler(event) {
+            let user = event.message.data.user;
+            _this.removeUser(user)
         }
         return handler;
     }
@@ -79,9 +89,24 @@ export class LobbyTable {
             user.id,
             user.status,
             user.color
-        ]
+        ];
         this.insertRow(userArray)
         this.insertRowIndex += 1;
+    }
+
+    removeUser(user) {
+        console.log(user)
+        console.log(this.elements.table)
+        let rows = Array.from(this.elements.table.rows);
+        let columnsAmount = this.headers.length;
+        rows.forEach(row => {
+            if (row.cells[1].innerText === user.id) {
+                for (let i = 1; i < columnsAmount; i++) {
+                    row.cells[i].innerText = '';
+                }
+            }
+        })
+        this.insertRowIndex -= 1;
     }
 
     insertRow(array) {
