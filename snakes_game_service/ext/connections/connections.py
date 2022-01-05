@@ -22,10 +22,10 @@ class Connections:
     def pop(self, client_id: str) -> Connection:
         return self.__connections.pop(client_id)
 
-    async def __send(self, message: dict, client_id: list):
+    async def send(self, message: dict, client_id: str):
         websocket = self.__connections[client_id].websocket
         await websocket.send_json(message)
 
     async def send_all(self, message: dict):
         for con in self.__connections.values():
-            await self.__send(message, client_id=con.client_id)
+            await self.send(message, client_id=con.client_id)

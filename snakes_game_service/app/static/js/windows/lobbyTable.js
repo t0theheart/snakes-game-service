@@ -6,7 +6,6 @@ export class LobbyTable {
         this.root.id = 'lobby-table'
         this.headers = ['№', 'ID', 'Status', 'Color'];
         this.elements = {};
-        this.insertRowIndex = 0;
         this.eventBus = eventBus;
         this.eventBus.listen('ENTER_LOBBY', this.enterLobbyHandler());
         this.eventBus.listen('PLAYER_ENTER_LOBBY', this.playerEnterLobbyHandler());
@@ -39,12 +38,14 @@ export class LobbyTable {
     enterLobbyHandler() {
         let _this = this;
         function handler(event) {
+            console.log(event.message.data)
             let users = event.message.data.session.users;
             let user = event.message.data.user;
             let usersAmount = event.message.data.session.usersAmount;
             _this.createTable(usersAmount);
             for (let key in users) {
-                 _this.insertUser(users[key]);
+                if (users[key] !== null)
+                    _this.insertUser(users[key]);
             }
             if (user.status === 'HOST') {
                 _this.createStartButton();
@@ -67,8 +68,7 @@ export class LobbyTable {
                 }
             }
         }
-        this.insertRow(this.headers);
-        this.insertRowIndex += 1;
+        this.insertRow(0, this.headers);
 
         this.root.appendChild(this.elements.table);
     };
@@ -84,33 +84,27 @@ export class LobbyTable {
     }
 
     insertUser(user) {
+        let index = user.slot + 1;
         let userArray = [
-            this.insertRowIndex,
+            index,
             user.id,
             user.status,
             user.color
         ];
-        this.insertRow(userArray)
-        this.insertRowIndex += 1;
+        this.insertRow(index, userArray);
     }
 
     removeUser(user) {
-        console.log(user)
-        console.log(this.elements.table)
-        let rows = Array.from(this.elements.table.rows);
+        let index = user.slot + 1;
+        let row = this.elements.table.rows[index];
         let columnsAmount = this.headers.length;
-        rows.forEach(row => {
-            if (row.cells[1].innerText === user.id) {
-                for (let i = 1; i < columnsAmount; i++) {
-                    row.cells[i].innerText = '';
-                }
-            }
-        })
-        this.insertRowIndex -= 1;
+        for (let i = 1; i < columnsAmount; i++) {
+            row.cells[i].innerText = '';
+        }
     }
 
-    insertRow(array) {
-        let row = this.elements.table.rows[this.insertRowIndex];
+    insertRow(index, array) {
+        let row = this.elements.table.rows[index];
         let cells = row.cells;
         for (let i = 0; i < cells.length; i++) {
             cells[i].innerText = array[i];

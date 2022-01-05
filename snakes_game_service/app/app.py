@@ -51,7 +51,7 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
             print('УБРАЛИ ИЗ ЛОББИ', user_id)
         else:
             print('НЕТ В ЛОББИ', user_id)
-        await websocket.close(code=3051)
+        await websocket.close()
 
 
 if __name__ == "__main__":
