@@ -38,10 +38,9 @@ export class LobbyTable {
     enterLobbyHandler() {
         let _this = this;
         function handler(event) {
-            console.log(event.message.data)
-            let users = event.message.data.session.users;
+            let users = event.message.data.users;
             let user = event.message.data.user;
-            let usersAmount = event.message.data.session.usersAmount;
+            let usersAmount = users.length;
             _this.createTable(usersAmount);
             for (let key in users) {
                 if (users[key] !== null)

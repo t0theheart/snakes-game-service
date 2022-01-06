@@ -1,8 +1,10 @@
 from fastapi import WebSocket
 import enum
 from .connections import Connections
-from .sessions import SessionsManager
+from .sessions import Sessions
 from .message import Message
+from .player import Player, PlayerStatus
+from .lobby import Lobby
 
 
 class GameCode(enum.Enum):
@@ -11,37 +13,34 @@ class GameCode(enum.Enum):
     PLAYER_LEAVE_LOBBY = 'PLAYER_LEAVE_LOBBY'
 
 
-class PlayerStatus(enum.Enum):
-    HOST = 'HOST'
-    PLAYER = 'PLAYER'
-
-
 class GameManager:
     def __init__(self):
         self.__connections = Connections()
-        self.__sessions = SessionsManager()
+        self.__lobby = Lobby(sessions=Sessions())
 
     @property
     def connections(self):
         return self.__connections
 
     async def connect_player(self, websocket: WebSocket, player_id: str, session_id: str):
-        session = self.__sessions.get_session(session_id)
-        slot = self.__sessions.get_empty_slot(session_id)
-        user = {'id': player_id, 'color': '#FF0000', 'status': PlayerStatus.HOST.value, 'slot': slot}
+        players = self.__lobby.get_players(session_id)
+        player = Player(player_id, PlayerStatus.HOST.value)
+        self.__lobby.put_player(session_id, player)
         await self.__connections.send_all(
-            Message(data={'user': user}, code=GameCode.PLAYER_ENTER_LOBBY.value).dict()
+            Message(data={'user': player.to_dict()}, code=GameCode.PLAYER_ENTER_LOBBY.value).dict()
         )
-        self.__sessions.put_user(user, session_id)
         self.__connections.add(websocket, player_id, session_id)
         await self.__connections.send(
-            message=Message(data={'session': session, 'user': user}, code=GameCode.ENTER_LOBBY.value).dict(),
+            message=Message(
+                data={'users': players, 'user': player.to_dict()},
+                code=GameCode.ENTER_LOBBY.value
+            ).dict(),
             client_id=player_id
         )
 
     async def disconnect_player(self, player_id: str):
         con = self.__connections.pop(client_id=player_id)
-        user = self.__sessions.pop_user(user_id=player_id, session_id=con.session_id)
+        user = self.__lobby.pop_player(session_id=con.session_id, player_id=player_id)
         await self.__connections.send_all(
             Message(data={'user': user}, code=GameCode.PLAYER_LEAVE_LOBBY.value).dict()
         )

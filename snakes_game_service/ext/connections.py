@@ -10,7 +10,7 @@ class Connection:
 
 class Connections:
     def __init__(self):
-        self.__connections = {}
+        self.__connections = dict()
 
     def add(self, websocket: WebSocket, client_id: str, session_id: str):
         con = Connection(websocket, client_id, session_id)
