@@ -1,6 +1,21 @@
 canvas { background: #eee; display: block; margin: 0 auto; }
 
-table, th, td {
-  border: 2px solid black;
-  border-collapse: collapse;
+#lobby-table {
+    margin-top: 200px;
+    margin-left: 25%;
+    margin-right: 25%;
+}
+
+#menu {
+    margin-top: 200px;
+    margin-left: 25%;
+    margin-right: 25%;
+}
+
+#enter-button-container {
+    margin-top: 10px;
+}
+
+body {
+    background: #ffe8e8;
 }

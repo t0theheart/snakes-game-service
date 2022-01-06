@@ -22,12 +22,14 @@ async function onclickSessionInputButton() {
 
 
 function createSessionKeyContainer() {
+    let menuDiv = document.createElement("div")
+    menuDiv.id = "menu"
+
     let div = document.createElement("div")
     div.id = "sessions-key-input-container"
 
     let input = document.createElement("input")
     input.type = "text"
-    input.size = 40
     input.id = "sessions-key-input"
 
     let text = document.createElement("div")
@@ -36,15 +38,18 @@ function createSessionKeyContainer() {
     let button = document.createElement("button")
     button.innerText = "Enter"
     button.onclick = onclickSessionInputButton
+    button.classList.add("btn");
+    button.classList.add("btn-dark");
 
     let buttonDiv = document.createElement("div")
-    buttonDiv.style.marginTop = "2%"
+    buttonDiv.id = "enter-button-container"
 
     div.appendChild(text)
     div.appendChild(input)
     buttonDiv.appendChild(button)
     div.appendChild(buttonDiv)
-    document.body.appendChild(div)
+    menuDiv.appendChild(div)
+    document.body.appendChild(menuDiv)
 }
 
 createSessionKeyContainer()

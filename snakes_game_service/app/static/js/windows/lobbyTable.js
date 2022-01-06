@@ -56,6 +56,9 @@ export class LobbyTable {
 
     createTable(rowsAmount) {
         this.elements.table = document.createElement("table");
+        this.elements.table.classList.add("table");
+        this.elements.table.classList.add("table-bordered");
+        this.elements.table.classList.add("border-dark");
         let columnsAmount = this.headers.length;
         rowsAmount += 1;
         for (let i = 0; i < rowsAmount; i++) {
@@ -75,6 +78,8 @@ export class LobbyTable {
     createStartButton() {
         this.elements['startButton'] = document.createElement("button");
         this.elements['startButton'].innerText ='Start';
+        this.elements['startButton'].classList.add("btn");
+        this.elements['startButton'].classList.add("btn-dark");
         this.elements['startButton'].onclick = (event) => {
             this.destroy();
             // this.eventBus.write('CREATE_GAME_FIELD', {});
