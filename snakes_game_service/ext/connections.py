@@ -17,7 +17,7 @@ class Connections:
         self.__connections[client_id] = con
 
     def get(self, client_id: str) -> Connection:
-        return self.__connections[client_id]
+        return self.__connections.get(client_id)
 
     def pop(self, client_id: str) -> Connection:
         return self.__connections.pop(client_id)

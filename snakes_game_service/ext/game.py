@@ -22,27 +22,40 @@ class GameManager:
     def connections(self):
         return self.__connections
 
-    async def connect_player(self, websocket: WebSocket, player_id: str, session_id: str):
-        players = self.__lobby.get_players(session_id)
-        player = Player(player_id, PlayerStatus.HOST.value)
-        self.__lobby.put_player(session_id, player)
-        await self.__connections.send_all(
-            Message(data={'user': player.to_dict()}, code=GameCode.PLAYER_ENTER_LOBBY.value).dict()
-        )
-        self.__connections.add(websocket, player_id, session_id)
-        await self.__connections.send(
-            message=Message(
+    async def connect_player(self, websocket: WebSocket, player_id: str, session_id: str) -> bool:
+        slot = self.__lobby.get_empty_slot(session_id)
+        if slot is not None:
+            player = Player(player_id, PlayerStatus.HOST.value)
+            player = self.__lobby.give_slot_to_player(player, slot)
+            self.__lobby.put_player(session_id, player, slot)
+            await self.notify_all(
+                data={'user': player.to_dict()},
+                code=GameCode.PLAYER_ENTER_LOBBY
+            )
+            self.__connections.add(websocket, player_id, session_id)
+            players = self.__lobby.get_players(session_id)
+            await self.notify_one(
                 data={'users': players, 'user': player.to_dict()},
-                code=GameCode.ENTER_LOBBY.value
-            ).dict(),
-            client_id=player_id
-        )
+                code=GameCode.ENTER_LOBBY,
+                player_id=player_id
+            )
+            return True
 
     async def disconnect_player(self, player_id: str):
         con = self.__connections.pop(client_id=player_id)
         user = self.__lobby.pop_player(session_id=con.session_id, player_id=player_id)
-        await self.__connections.send_all(
-            Message(data={'user': user}, code=GameCode.PLAYER_LEAVE_LOBBY.value).dict()
+        await self.notify_all(
+            data={'user': user},
+            code=GameCode.PLAYER_LEAVE_LOBBY
         )
 
+    async def notify_one(self, data: dict, code: GameCode, player_id: str):
+        await self.__connections.send(
+            message=Message(data=data, code=code.value).dict(),
+            client_id=player_id
+        )
 
+    async def notify_all(self, data: dict, code: GameCode):
+        await self.__connections.send_all(
+            message=Message(data=data, code=code.value).dict(),
+        )

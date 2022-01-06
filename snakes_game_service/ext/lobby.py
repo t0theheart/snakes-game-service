@@ -34,13 +34,18 @@ class Lobby:
             if item['id'] == player_id:
                 return n
 
-    def put_player(self, session_id: str, player: Player):
+    def get_empty_slot(self, session_id: str) -> int:
         players = self.get_players(session_id)
         slot = self.__get_empty_slot(players)
-        if slot is not None:
-            player.slot = slot
-            player.color = self.color_map[slot]
-            self.__sessions.put_user(session_id, slot, player.to_dict())
+        return slot
+
+    def give_slot_to_player(self, player: Player, slot: int) -> Player:
+        player.slot = slot
+        player.color = self.color_map[slot]
+        return player
+
+    def put_player(self, session_id: str, player: Player, slot: int):
+        self.__sessions.put_user(session_id, slot, player.to_dict())
 
     def pop_player(self, session_id: str, player_id: str) -> dict:
         players = self.get_players(session_id)
