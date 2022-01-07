@@ -38,18 +38,26 @@ export class Menu {
         let buttonDiv = document.createElement("div")
         button.classList.add("button-container");
 
+        let loginPlace = document.createElement("div")
+        loginPlace.id = 'login-place';
+        loginPlace.innerText = "Welcome, " + login + "!";
+        loginPlace.classList.add("login-place");
+
         this.elements.input = input;
         this.elements.button = button;
+        this.elements.loginPlace = loginPlace;
 
         div.appendChild(text)
         div.appendChild(input)
         buttonDiv.appendChild(button)
         div.appendChild(buttonDiv)
         this.root.appendChild(div)
+        document.body.appendChild(loginPlace)
         document.body.appendChild(this.root)
     }
 
     destroy() {
         document.getElementById("enter-lobby-menu").remove()
+        document.getElementById("login-place").remove()
     }
 }
