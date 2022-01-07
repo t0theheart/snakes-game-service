@@ -30,8 +30,9 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
         while True:
             data = await websocket.receive_json()
             if data['code'] == 'CONNECT_TO_SESSION':
-                session_id = data['sessionId']
-                connected = await game.connect_player(websocket, player_id=user_id, session_id=session_id)
+                session_id = data['sessionId'][:30]
+                login = data['login'][:30]
+                connected = await game.connect_player(websocket, session_id=session_id, player_id=user_id, login=login)
                 if not connected:
                     raise WebSocketDisconnect
             else:

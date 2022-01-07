@@ -15,6 +15,7 @@ class Sessions:
         return self.__sessions.get(session_id)
 
     def put_user(self, session_id: str, slot: int, user: dict):
+        print(user)
         self.__sessions[session_id]['users'][slot] = user
 
     def pop_user(self, session_id: str, slot: str) -> dict:

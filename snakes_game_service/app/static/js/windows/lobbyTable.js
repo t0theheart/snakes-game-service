@@ -1,10 +1,10 @@
-
+import {eventBus} from "../eventBus.js";
 
 export class LobbyTable {
-    constructor(eventBus) {
+    constructor() {
         this.root = document.createElement("div");
         this.root.id = 'lobby-table'
-        this.headers = ['№', 'ID', 'Status', 'Color'];
+        this.headers = ['№', 'Login', 'Status', 'Color'];
         this.elements = {};
         this.eventBus = eventBus;
         this.eventBus.listen('ENTER_LOBBY', this.enterLobbyHandler());
@@ -91,7 +91,7 @@ export class LobbyTable {
         let index = user.slot + 1;
         let userArray = [
             index,
-            user.id,
+            user.login,
             user.status,
             user.color
         ];

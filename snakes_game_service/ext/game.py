@@ -22,10 +22,11 @@ class GameManager:
     def connections(self):
         return self.__connections
 
-    async def connect_player(self, websocket: WebSocket, player_id: str, session_id: str) -> bool:
+    async def connect_player(self, websocket: WebSocket, player_id: str, session_id: str, login: str) -> bool:
         slot = self.__lobby.get_empty_slot(session_id)
         if slot is not None:
-            player = Player(player_id, PlayerStatus.HOST.value)
+            player = Player(player_id, login, PlayerStatus.HOST.value)
+            print()
             player = self.__lobby.give_slot_to_player(player, slot)
             self.__lobby.put_player(session_id, player, slot)
             await self.notify_all(
