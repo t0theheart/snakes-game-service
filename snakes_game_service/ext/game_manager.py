@@ -5,6 +5,7 @@ from .sessions import Sessions
 from .message import Message
 from .player import Player, PlayerStatus
 from .lobby import Lobby
+from .game_engine import GameEngine
 
 
 class GameCode(enum.Enum):
@@ -17,6 +18,7 @@ class GameManager:
     def __init__(self):
         self.__connections = Connections()
         self.__lobby = Lobby(sessions=Sessions())
+        self.__game = GameEngine()
 
     @property
     def connections(self):
@@ -25,38 +27,34 @@ class GameManager:
     async def connect_player(self, websocket: WebSocket, player_id: str, session_id: str, login: str) -> bool:
         slot = self.__lobby.get_empty_slot(session_id)
         if slot is not None:
+            other_players = self.__lobby.get_players(session_id)
             player = Player(player_id, login, PlayerStatus.HOST.value)
-            print()
-            player = self.__lobby.give_slot_to_player(player, slot)
-            self.__lobby.put_player(session_id, player, slot)
-            await self.notify_all(
+            player = self.__lobby.put_player(session_id, player, slot)
+            await self.notify(
                 data={'user': player.to_dict()},
-                code=GameCode.PLAYER_ENTER_LOBBY
+                code=GameCode.PLAYER_ENTER_LOBBY,
+                players=other_players
             )
             self.__connections.add(websocket, player_id, session_id)
-            players = self.__lobby.get_players(session_id)
-            await self.notify_one(
-                data={'users': players, 'user': player.to_dict()},
+            await self.notify(
+                data={'users': other_players, 'user': player.to_dict()},
                 code=GameCode.ENTER_LOBBY,
-                player_id=player_id
+                players=[player.to_dict()]
             )
             return True
 
     async def disconnect_player(self, player_id: str):
         con = self.__connections.pop(client_id=player_id)
         user = self.__lobby.pop_player(session_id=con.session_id, player_id=player_id)
-        await self.notify_all(
+        other_players = self.__lobby.get_players(con.session_id)
+        await self.notify(
             data={'user': user},
-            code=GameCode.PLAYER_LEAVE_LOBBY
+            code=GameCode.PLAYER_LEAVE_LOBBY,
+            players=other_players
         )
 
-    async def notify_one(self, data: dict, code: GameCode, player_id: str):
-        await self.__connections.send(
-            message=Message(data=data, code=code.value).dict(),
-            client_id=player_id
-        )
-
-    async def notify_all(self, data: dict, code: GameCode):
-        await self.__connections.send_all(
-            message=Message(data=data, code=code.value).dict(),
-        )
+    async def notify(self, data: dict, code: GameCode, players: list):
+        message = Message(data=data, code=code.value).dict()
+        for player in players:
+            if player:
+                await self.__connections.send(message, player['player_id'])

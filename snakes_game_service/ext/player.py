@@ -7,16 +7,16 @@ class PlayerStatus(enum.Enum):
 
 
 class Player:
-    def __init__(self, _id: str, login: str, status: PlayerStatus):
-        self.id = _id
+    def __init__(self, player_id: str, login: str, status: PlayerStatus, slot=None, color=None):
+        self.player_id = player_id
         self.login = login
-        self.slot = None
-        self.color = None
+        self.slot = slot
+        self.color = color
         self.status = status
 
     def to_dict(self):
         return {
-            'id': self.id,
+            'player_id': self.player_id,
             'login': self.login,
             'slot': self.slot,
             'color': self.color,

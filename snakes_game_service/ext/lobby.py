@@ -22,37 +22,32 @@ class Lobby:
     def __init__(self, sessions: Sessions):
         self.__sessions = sessions
 
-    @staticmethod
-    def __get_empty_slot(players: list) -> int:
-        for n, item in enumerate(players):
-            if item is None:
-                return n
-
-    @staticmethod
-    def __get_player_slot(players: list, player_id: str):
-        for n, item in enumerate(players):
-            if item['id'] == player_id:
-                return n
-
     def get_empty_slot(self, session_id: str) -> int:
-        players = self.get_players(session_id)
-        slot = self.__get_empty_slot(players)
-        return slot
+        slots = self.get_players(session_id)
+        for n, slot in enumerate(slots):
+            if slot is None:
+                return n
 
-    def give_slot_to_player(self, player: Player, slot: int) -> Player:
+    def get_player_slot(self, session_id: str, player_id: str) -> int:
+        slots = self.get_players(session_id)
+        for n, slot in enumerate(slots):
+            if slot is not None and slot['player_id'] == player_id:
+                return n
+
+    def __give_slot_to_player(self, player: Player, slot: int) -> Player:
         player.slot = slot
         player.color = self.color_map[slot]
         return player
 
     def put_player(self, session_id: str, player: Player, slot: int):
+        player = self.__give_slot_to_player(player, slot)
         self.__sessions.put_user(session_id, slot, player.to_dict())
 
     def pop_player(self, session_id: str, player_id: str) -> dict:
-        players = self.get_players(session_id)
-        slot = self.__get_player_slot(players, player_id)
+        slot = self.get_player_slot(session_id, player_id)
         if slot is not None:
             return self.__sessions.pop_user(session_id, slot)
 
-    def get_players(self, session_id: str) -> list:
+    def get_players(self, session_id: str):
         session = self.__sessions.get_session(session_id)
-        return session['users']
+        return [i for i in session['users']]

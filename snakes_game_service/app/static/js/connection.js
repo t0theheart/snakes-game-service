@@ -1,13 +1,15 @@
 import {eventBus} from "./eventBus.js";
 
-export class Connection {
+class Connection {
     constructor() {
         this.eventBus = eventBus;
         this.address = 'ws://127.0.0.1:5000/ws/';
         this.socket = null;
+        this.sessionId = null;
     };
 
     connect(sessionId, login) {
+        this.sessionId = sessionId;
         this.socket = new WebSocket(this.address + this.generate_id());
         this.socket.onopen = this.onopen(sessionId, login);
         this.socket.onmessage = this.onmessage();
@@ -37,3 +39,5 @@ export class Connection {
         return wrapper
     }
 }
+
+export const connection = new Connection();

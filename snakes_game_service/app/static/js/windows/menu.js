@@ -1,4 +1,4 @@
-import { Connection } from "../connection.js";
+import { connection } from "../connection.js";
 import { LobbyTable } from "./lobbyTable.js";
 
 
@@ -7,7 +7,7 @@ export class Menu {
         this.root = document.createElement("div");
         this.root.id = 'enter-lobby-menu';
         this.elements = {};
-        this.connection = new Connection();
+        this.connection = connection;
         this.lobby = new LobbyTable();
     };
 
