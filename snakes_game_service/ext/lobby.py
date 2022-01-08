@@ -39,9 +39,10 @@ class Lobby:
         player.color = self.color_map[slot]
         return player
 
-    def put_player(self, session_id: str, player: Player, slot: int):
+    def put_player(self, session_id: str, player: Player, slot: int) -> Player:
         player = self.__give_slot_to_player(player, slot)
         self.__sessions.put_user(session_id, slot, player.to_dict())
+        return player
 
     def pop_player(self, session_id: str, player_id: str) -> dict:
         slot = self.get_player_slot(session_id, player_id)
