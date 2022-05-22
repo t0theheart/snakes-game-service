@@ -3,7 +3,8 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 import uvicorn
-from snakes_game_service.ext.game_manager import GameManager
+from app.modules.game_manager import GameManager
+from .modules import Event
 
 
 app = FastAPI()
@@ -29,10 +30,10 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
     try:
         while True:
             data = await websocket.receive_json()
-            if data['code'] == 'CONNECT_TO_SESSION':
+            print(data)
+            if data['code'] == Event.CONNECT_TO_SESSION.value:
                 session_id = data['sessionId'][:30]
                 login = data['login'][:30]
-                print('3')
                 connected = await game.connect_player(websocket, session_id=session_id, player_id=user_id, login=login)
                 if not connected:
                     raise WebSocketDisconnect
@@ -49,4 +50,3 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
 
 if __name__ == "__main__":
     uvicorn.run("app:app", host="127.0.0.1", port=5000, log_level="info")
-    # test
