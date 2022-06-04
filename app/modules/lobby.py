@@ -1,6 +1,7 @@
 import enum
 from .player import Player
 from .sessions import Sessions
+from typing import List
 
 
 class PlayerColor(enum.Enum):
@@ -23,9 +24,9 @@ class Lobby:
         self.__sessions = sessions
 
     def get_empty_slot(self, session_id: str) -> int:
-        slots = self.get_players(session_id)
-        for n, slot in enumerate(slots):
-            if slot is None:
+        users = self.__sessions.get_session_users(session_id)
+        for n, user in enumerate(users):
+            if user is None:
                 return n
 
     def get_player_slot(self, session_id: str, player_id: str) -> int:
@@ -49,6 +50,7 @@ class Lobby:
         if slot is not None:
             return self.__sessions.pop_user(session_id, slot)
 
-    def get_players(self, session_id: str):
-        session = self.__sessions.get_session(session_id)
-        return [i for i in session['users']]
+    def get_players(self, session_id: str) -> List[Player or None]:
+        users = self.__sessions.get_session_users(session_id)
+        players = [Player.from_session(user) if user else None for user in users]
+        return players

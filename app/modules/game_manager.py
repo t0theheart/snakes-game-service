@@ -30,6 +30,7 @@ class GameManager:
             players = self.__lobby.get_players(session_id)
             player = Player(player_id, login, PlayerStatus.HOST.value)
             player = self.__lobby.put_player(session_id, player, slot)
+            # todo players is List[Player] -> 'Player' object is not subscriptable
             await self.notify(
                 data={'user': player.to_dict()},
                 code=GameCode.PLAYER_ENTER_LOBBY,
@@ -58,4 +59,4 @@ class GameManager:
         message = Message(data=data, code=code.value).dict()
         for player in players:
             if player:
-                await self.__connections.send(message, player['player_id'])
+                await self.__connections.send(message, player['id'])

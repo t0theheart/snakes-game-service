@@ -4,7 +4,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 import uvicorn
 from app.modules.game_manager import GameManager
-from .modules import Event
+from app.modules import Event
 
 
 app = FastAPI()
@@ -12,9 +12,9 @@ app = FastAPI()
 
 @app.on_event("startup")
 async def startup_event():
-    app.templates = Jinja2Templates(directory="static/templates")
-    app.mount("/static", StaticFiles(directory="static"), name="static")
-    app.mount("/scripts", StaticFiles(directory="static/js"), name="scripts")
+    app.templates = Jinja2Templates(directory="../static/templates")
+    app.mount("/static", StaticFiles(directory="../static"), name="static")
+    app.mount("/scripts", StaticFiles(directory="../static/js"), name="scripts")
     app.game = GameManager()
 
 

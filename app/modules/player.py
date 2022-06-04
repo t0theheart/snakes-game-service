@@ -1,4 +1,11 @@
 import enum
+import random
+
+
+class PlayerColor(enum.Enum):
+    RED = '#FF0000'
+    BLUE = '#3f62f7'
+    YELLOW = '#ffce0e'
 
 
 class PlayerStatus(enum.Enum):
@@ -7,16 +14,30 @@ class PlayerStatus(enum.Enum):
 
 
 class Player:
-    def __init__(self, player_id: str, login: str, status: PlayerStatus, slot=None, color=None):
-        self.player_id = player_id
+    def __init__(self, _id: str, login: str, status: PlayerStatus, slot: int = None, color: str = None):
+        self.id = _id
         self.login = login
         self.slot = slot
-        self.color = color
+        self.color = color or self.__get_color()
         self.status = status
+
+    @staticmethod
+    def __get_color():
+        return random.choice([color.value for color in PlayerColor])
+
+    @classmethod
+    def from_session(cls, user: dict):
+        return cls(
+            _id=user['id'],
+            login=user['login'],
+            status=user['status'],
+            slot=user['slot'],
+            color=user['color']
+        )
 
     def to_dict(self):
         return {
-            'player_id': self.player_id,
+            'id': self.id,
             'login': self.login,
             'slot': self.slot,
             'color': self.color,
