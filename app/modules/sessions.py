@@ -13,6 +13,7 @@ class Sessions:
                 'width': 1500,
                 'height': 900
             }
+
         }
 
         self.__sessions['456'] = {
@@ -31,6 +32,9 @@ class Sessions:
     def __get_session(self, session_id: str) -> dict:
         return self.__sessions.get(session_id)
 
+    def get_game(self, session_id: str) -> dict:
+        return self.__get_session(session_id)['game']
+
     def put_user(self, session_id: str, index: int, user: dict):
         self.__get_session(session_id)['users'][index] = user
 
@@ -40,5 +44,4 @@ class Sessions:
         return user
 
     def get_session_users(self, session_id: str) -> list:
-        session = self.__get_session(session_id)
-        return session['users']
+        return self.__get_session(session_id)['users']

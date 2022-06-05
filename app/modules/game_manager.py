@@ -15,6 +15,8 @@ class GameCode(enum.Enum):
     PLAYER_ENTER_LOBBY = 'PLAYER_ENTER_LOBBY'
     PLAYER_LEAVE_LOBBY = 'PLAYER_LEAVE_LOBBY'
 
+    GAME_STARTED = 'GAME_STARTED'
+
 
 class GameManager:
     def __init__(self):
@@ -26,7 +28,13 @@ class GameManager:
         slot = self.__lobby.get_empty_slot(session_id)
         if slot is not None:
             players = self.__lobby.get_players(session_id)
-            player = Player(player_id, login, PlayerStatus.HOST.value, slot=slot)
+
+            # todo temporary
+            if login == '111':
+                player = Player(player_id, login, slot=slot, status=PlayerStatus.HOST.value)
+            else:
+                player = Player(player_id, login, slot=slot)
+
             self.__lobby.put_player(session_id, player)
 
             if any(players):
@@ -56,3 +64,9 @@ class GameManager:
         await asyncio.gather(
             *[self.__connections.send(message.dict(), player.id) for player in players if player is not None]
         )
+
+    async def init_game(self, session_id: str):
+        game_settings = self.__lobby.get_game_settings(session_id)
+        players = self.__lobby.get_players(session_id)
+        message = Message(data={'game': game_settings}, code=GameCode.GAME_STARTED.value)
+        await self.__notify_players(message, players)

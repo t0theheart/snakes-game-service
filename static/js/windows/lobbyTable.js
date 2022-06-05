@@ -81,7 +81,6 @@ export class LobbyTable {
         this.elements['startButton'].classList.add("btn");
         this.elements['startButton'].classList.add("btn-dark");
         this.elements['startButton'].onclick = (event) => {
-            this.destroy();
             this.eventBus.write('START_GAME', {});
         };
         this.root.appendChild(this.elements['startButton']);

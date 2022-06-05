@@ -32,3 +32,6 @@ class Lobby:
         for p in players:
             if p is not None and p.id == player_id:
                 return p
+
+    def get_game_settings(self, session_id: str):
+        return self.__sessions.get_game(session_id)

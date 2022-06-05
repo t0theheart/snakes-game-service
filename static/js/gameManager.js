@@ -1,24 +1,30 @@
 import {Game} from "./game.js";
 import {eventBus} from "./eventBus.js";
-import {connection} from "./connection.js";
+import {connection} from "./connection.js"
 
 
 export class GameManager {
     constructor() {
         this.eventBus = eventBus;
         this.connection = connection;
-        // this.eventBus.listen('CREATE_GAME', this.createGameHandler());
         this.eventBus.listen('START_GAME', this.startGameHandler());
+        this.eventBus.listen('GAME_STARTED', this.gameStartedHandler());
     }
 
-    // createGameHandler() {
-    //     let _this = this;
-    //     function handler(event) {
-    //         let settings = event.message.data.game;
-    //         console.log(settings)
-    //     }
-    //     return handler;
-    // }
+    gameStartedHandler() {
+        let _this = this;
+        function handler(event) {
+            let settings = event.message.data.game;
+            let game = new Game('snakes-game', settings.width, settings.height);
+
+            // todo think how to destroy lobby elem
+            let elem = document.getElementById('lobby-table');
+            elem.parentNode.removeChild(elem);
+
+            game.start()
+        }
+        return handler;
+    }
 
     startGameHandler() {
         let _this = this;

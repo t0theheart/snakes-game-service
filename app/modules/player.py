@@ -14,12 +14,12 @@ class PlayerStatus(enum.Enum):
 
 
 class Player:
-    def __init__(self, _id: str, login: str, status: PlayerStatus, slot: int = None, color: str = None):
+    def __init__(self, _id: str, login: str, status: PlayerStatus = None, slot: int = None, color: str = None):
         self.id = _id
         self.login = login
         self.slot = slot
         self.color = color or self.__get_color()
-        self.status = status
+        self.status = status or PlayerStatus.PLAYER.value
 
     @staticmethod
     def __get_color():
