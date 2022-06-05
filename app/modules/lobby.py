@@ -1,25 +1,9 @@
-import enum
 from .player import Player
 from .sessions import Sessions
 from typing import List
 
 
-class PlayerColor(enum.Enum):
-    RED = '#FF0000'
-
-
 class Lobby:
-    color_map = {
-        0: PlayerColor.RED.value,
-        1: PlayerColor.RED.value,
-        2: PlayerColor.RED.value,
-        3: PlayerColor.RED.value,
-        4: PlayerColor.RED.value,
-        5: PlayerColor.RED.value,
-        6: PlayerColor.RED.value,
-        7: PlayerColor.RED.value,
-    }
-
     def __init__(self, sessions: Sessions):
         self.__sessions = sessions
 
@@ -29,28 +13,22 @@ class Lobby:
             if user is None:
                 return n
 
-    def get_player_slot(self, session_id: str, player_id: str) -> int:
-        slots = self.get_players(session_id)
-        for n, slot in enumerate(slots):
-            if slot is not None and slot['player_id'] == player_id:
-                return n
+    def put_player(self, session_id: str, player: Player):
+        self.__sessions.put_user(session_id, player.slot, player.to_dict())
 
-    def __give_slot_to_player(self, player: Player, slot: int) -> Player:
-        player.slot = slot
-        player.color = self.color_map[slot]
-        return player
-
-    def put_player(self, session_id: str, player: Player, slot: int) -> Player:
-        player = self.__give_slot_to_player(player, slot)
-        self.__sessions.put_user(session_id, slot, player.to_dict())
-        return player
-
-    def pop_player(self, session_id: str, player_id: str) -> dict:
-        slot = self.get_player_slot(session_id, player_id)
-        if slot is not None:
-            return self.__sessions.pop_user(session_id, slot)
+    def pop_player(self, session_id: str, player_id: str) -> Player or None:
+        player = self.get_player(session_id, player_id)
+        if player:
+            self.__sessions.pop_user(session_id, player.slot)
+            return player
 
     def get_players(self, session_id: str) -> List[Player or None]:
         users = self.__sessions.get_session_users(session_id)
-        players = [Player.from_session(user) if user else None for user in users]
+        players = [Player.from_session(u) if u else None for u in users]
         return players
+
+    def get_player(self, session_id: str, player_id: str) -> Player or None:
+        players = self.get_players(session_id)
+        for p in players:
+            if p is not None and p.id == player_id:
+                return p

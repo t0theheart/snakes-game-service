@@ -30,7 +30,6 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
     try:
         while True:
             data = await websocket.receive_json()
-            print(data)
             if data['code'] == Event.CONNECT_TO_SESSION.value:
                 session_id = data['sessionId'][:30]
                 login = data['login'][:30]
@@ -43,8 +42,7 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
                 pass
 
     except WebSocketDisconnect:
-        if game.connections.get(user_id):
-            await game.disconnect_player(player_id=user_id)
+        await game.disconnect_player(player_id=user_id)
         await websocket.close()
 
 

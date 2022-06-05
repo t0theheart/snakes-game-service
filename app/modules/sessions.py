@@ -31,8 +31,8 @@ class Sessions:
     def __get_session(self, session_id: str) -> dict:
         return self.__sessions.get(session_id)
 
-    def put_user(self, session_id: str, slot: int, user: dict):
-        self.__get_session(session_id)['users'][slot] = user
+    def put_user(self, session_id: str, index: int, user: dict):
+        self.__get_session(session_id)['users'][index] = user
 
     def pop_user(self, session_id: str, index: int) -> dict:
         user = self.__get_session(session_id)['users'][index]
