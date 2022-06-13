@@ -3,10 +3,9 @@ from typing import List
 import enum
 import asyncio
 from .connections import Connections
-from .sessions import Sessions
 from .message import Message
 from .player import Player, PlayerStatus
-from .lobby import Lobby
+from .sessions import Sessions
 from .game_engine import GameEngine
 
 
@@ -21,8 +20,8 @@ class GameCode(enum.Enum):
 class GameManager:
     def __init__(self):
         self.__connections = Connections()
-        self.__lobby = Lobby(sessions=Sessions())
-        self.__game = GameEngine()
+        self.__lobby = Sessions()
+        self.__game_engine = GameEngine()
 
     async def connect_player(self, websocket: WebSocket, player_id: str, session_id: str, login: str) -> bool:
         slot = self.__lobby.get_empty_slot(session_id)
@@ -35,12 +34,11 @@ class GameManager:
             else:
                 player = Player(player_id, login, slot=slot)
 
-            self.__lobby.put_player(session_id, player)
-
             if any(players):
                 message = Message(data={'user': player.to_dict()}, code=GameCode.PLAYER_ENTER_LOBBY.value)
                 await self.__notify_players(message, players)
 
+            self.__lobby.put_player(session_id, player)
             self.__connections.add(websocket, player_id, session_id)
             old_players = [i.to_dict() if i else None for i in players]
             old_players[slot] = player.to_dict()
@@ -65,8 +63,10 @@ class GameManager:
             *[self.__connections.send(message.dict(), player.id) for player in players if player is not None]
         )
 
-    async def init_game(self, session_id: str):
-        game_settings = self.__lobby.get_game_settings(session_id)
-        players = self.__lobby.get_players(session_id)
-        message = Message(data={'game': game_settings}, code=GameCode.GAME_STARTED.value)
-        await self.__notify_players(message, players)
+    # async def init_game(self, session_id: str):
+    #     game = self.__lobby.get_game(session_id)
+    #     game.init_game()
+    #     players = game.players
+    #     # todo хранить game в sessions и после инициализации игры делать репут плееров с позицией и длинной хвоста
+    #     message = Message(data={'game': game}, code=GameCode.GAME_STARTED.value)
+    #     await self.__notify_players(message, players)

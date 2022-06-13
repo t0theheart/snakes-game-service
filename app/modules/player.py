@@ -20,20 +20,12 @@ class Player:
         self.slot = slot
         self.color = color or self.__get_color()
         self.status = status or PlayerStatus.PLAYER.value
+        self.x = 0
+        self.y = 0
 
     @staticmethod
     def __get_color():
         return random.choice([color.value for color in PlayerColor])
-
-    @classmethod
-    def from_session(cls, user: dict):
-        return cls(
-            _id=user['id'],
-            login=user['login'],
-            status=user['status'],
-            slot=user['slot'],
-            color=user['color']
-        )
 
     def to_dict(self):
         return {
@@ -41,5 +33,11 @@ class Player:
             'login': self.login,
             'slot': self.slot,
             'color': self.color,
-            'status': self.status
+            'status': self.status,
+            'x': self.x,
+            'y': self.y
         }
+
+    def set_position(self, x: int, y: int):
+        self.x = x
+        self.y = y
