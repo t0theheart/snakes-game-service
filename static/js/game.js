@@ -14,10 +14,8 @@ export class Game {
         this.canvas.height = this.height
     }
 
-    initPlayer() {
-        let x = this.canvas.width/5
-        let y = this.canvas.height-90
-        this.player = new Snake(x, y, 30, 2, "#FF0000", 1, "#000000")
+    initPlayer(body, bodyColor) {
+        this.player = new Snake(body, 30, 2, bodyColor, 1, "#000000")
 
         function keyUpHandler(snake) {
             function f(e) {
@@ -43,6 +41,5 @@ export class Game {
 
     start() {
         this.initGameField()
-        this.initPlayer()
     }
 }

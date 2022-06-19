@@ -22,6 +22,10 @@ export class GameManager {
             elem.parentNode.removeChild(elem);
 
             game.start()
+            settings.players.forEach(player => {
+                console.log('player', player)
+                game.initPlayer(player.body, player.color)
+            })
         }
         return handler;
     }

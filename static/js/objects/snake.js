@@ -2,14 +2,14 @@ import { SquareObject } from "./squareObject.js";
 
 
 export class Snake {
-    constructor(x, y, bodySize, bodyLength, bodyColor, borderWidth, borderColor) {
+    constructor(body, bodySize, bodyLength, bodyColor, borderWidth, borderColor) {
         this.bodySize = bodySize
         this.bodyLength = bodyLength
         this.bodyColor = bodyColor
         this.borderWidth = borderWidth
         this.borderColor = borderColor
         this.body = []
-        this.createStartBody(x, y)
+        this.createStartBody(body)
 
         this.moveMap = {
             up: {x: 0, y: -this.bodySize},
@@ -19,13 +19,13 @@ export class Snake {
         }
     }
 
-    createStartBody(x, y) {
-        let head = new SquareObject(x, y, this.bodySize, this.bodyColor, this.borderWidth, this.borderColor)
+    createStartBody(body) {
+        console.log('head', body[0])
+        let head = new SquareObject(body[0][0], body[0][1], this.bodySize, this.bodyColor, this.borderWidth, this.borderColor)
         this.body.push(head)
-        for (let i = this.bodyLength; i > 0; i--) {
-            let lastBodyElementY = this.getLastBodyElement().y + this.bodySize
-            let lastBodyElementX = this.getLastBodyElement().x
-            let bodyElement = new SquareObject(lastBodyElementX, lastBodyElementY, this.bodySize, this.bodyColor, this.borderWidth, this.borderColor)
+        for (let i = 1; i < body.length; i++) {
+            console.log('i', body[i])
+            let bodyElement = new SquareObject(body[i][0], body[i][1], this.bodySize, this.bodyColor, this.borderWidth, this.borderColor)
             this.body.push(bodyElement)
         }
     }

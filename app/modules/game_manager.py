@@ -63,10 +63,9 @@ class GameManager:
             *[self.__connections.send(message.dict(), player.id) for player in players if player is not None]
         )
 
-    # async def init_game(self, session_id: str):
-    #     game = self.__lobby.get_game(session_id)
-    #     game.init_game()
-    #     players = game.players
-    #     # todo хранить game в sessions и после инициализации игры делать репут плееров с позицией и длинной хвоста
-    #     message = Message(data={'game': game}, code=GameCode.GAME_STARTED.value)
-    #     await self.__notify_players(message, players)
+    async def init_game(self, session_id: str):
+        game = self.__lobby.get_game(session_id)
+        game.init_game()
+        players = game.players
+        message = Message(data={'game': game.to_dict()}, code=GameCode.GAME_STARTED.value)
+        await self.__notify_players(message, players)

@@ -20,8 +20,10 @@ class Player:
         self.slot = slot
         self.color = color or self.__get_color()
         self.status = status or PlayerStatus.PLAYER.value
-        self.x = 0
-        self.y = 0
+
+        self.body = []
+        self.body_size: int = 30
+        self.body_length: int = 2
 
     @staticmethod
     def __get_color():
@@ -34,10 +36,19 @@ class Player:
             'slot': self.slot,
             'color': self.color,
             'status': self.status,
-            'x': self.x,
-            'y': self.y
+            'body': self.body
         }
 
-    def set_position(self, x: int, y: int):
-        self.x = x
-        self.y = y
+    def create_start_body(self, x: int, y: int, reversed_body: bool = False):
+        head = (x, y)
+        self.body.append(head)
+
+        if reversed_body:
+            body_elem_1 = (x, y - self.body_size)
+            body_elem_2 = (x, y - self.body_size * 2)
+        else:
+            body_elem_1 = (x, y + self.body_size)
+            body_elem_2 = (x, y + self.body_size * 2)
+
+        self.body.append(body_elem_1)
+        self.body.append(body_elem_2)
