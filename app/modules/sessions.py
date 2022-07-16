@@ -1,12 +1,16 @@
 from .player import Player
-from .game import Game
+from app.modules.game.game import Game
 from typing import List
+from app.modules.game.init_players_strategy import OppositeSidesInitPlayerStrategy
 
 
 class Sessions:
     def __init__(self):
         self.__sessions = dict()
-        self.__sessions['123'] = Game(_id='123', width=1500, height=900, players=[None, None, None])
+        self.__sessions['123'] = Game(
+            _id='123', width=1500, height=900, players=[None, None, None],
+            init_players_strategy=OppositeSidesInitPlayerStrategy()
+        )
 
     def get_player(self, session_id: str, player_id: str) -> Player or None:
         return self.get_game(session_id).get_player(player_id)
