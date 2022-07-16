@@ -1,12 +1,12 @@
 from fastapi import WebSocket
-from typing import List
 import enum
-import asyncio
-from .connections import Connections
-from .message import Message
-from .player import Player, PlayerStatus
-from .sessions import Sessions
-from .game_engine import GameEngine
+from app.modules.connections import Connections
+from app.modules.message import Message
+from app.modules.player import Player, PlayerStatus
+from app.modules.sessions import Sessions
+from app.modules.game_engine import GameEngine
+from .abc import GameManagerABC
+from .notifier import PlayersNotifier
 
 
 class GameCode(enum.Enum):
@@ -17,9 +17,10 @@ class GameCode(enum.Enum):
     GAME_STARTED = 'GAME_STARTED'
 
 
-class GameManager:
+class GameManager(GameManagerABC):
     def __init__(self):
         self.__connections = Connections()
+        self.__notifier = PlayersNotifier(self.__connections)
         self.__lobby = Sessions()
         self.__game_engine = GameEngine()
 
@@ -36,7 +37,7 @@ class GameManager:
 
             if any(players):
                 message = Message(data={'user': player.to_dict()}, code=GameCode.PLAYER_ENTER_LOBBY.value)
-                await self.__notify_players(message, players)
+                await self.__notifier.notify(message, players)
 
             self.__lobby.put_player(session_id, player)
             self.__connections.add(websocket, player_id, session_id)
@@ -46,7 +47,7 @@ class GameManager:
                 data={'users': old_players, 'user': player.to_dict()},
                 code=GameCode.ENTER_LOBBY.value
             )
-            await self.__notify_players(message, [player])
+            await self.__notifier.notify(message, [player])
 
             return True
 
@@ -56,16 +57,11 @@ class GameManager:
             player = self.__lobby.pop_player(con.session_id, player_id)
             other_players = self.__lobby.get_players(con.session_id)
             message = Message(data={'user': player.to_dict()}, code=GameCode.PLAYER_LEAVE_LOBBY.value)
-            await self.__notify_players(message, other_players)
+            await self.__notifier.notify(message, other_players)
 
-    async def __notify_players(self, message: Message, players: List[Player or None]):
-        await asyncio.gather(
-            *[self.__connections.send(message.dict(), player.id) for player in players if player is not None]
-        )
-
-    async def init_game(self, session_id: str):
+    async def start_game(self, session_id: str):
         game = self.__lobby.get_game(session_id)
         game.init_game()
         players = game.players
         message = Message(data={'game': game.to_dict()}, code=GameCode.GAME_STARTED.value)
-        await self.__notify_players(message, players)
+        await self.__notifier.notify(message, players)

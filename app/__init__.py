@@ -38,7 +38,7 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
                     raise WebSocketDisconnect
             if data['code'] == Event.START_GAME.value:
                 session_id = data['sessionId'][:30]
-                await game.init_game(session_id)
+                await game.start_game(session_id)
             else:
                 pass
 
